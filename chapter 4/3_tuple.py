@@ -1,2 +1,5 @@
+# Tuple is immutable means it cannot change
+
 a = (3,5,78,23)
-print(type(a))
+a[0] = 435
+print(a)
