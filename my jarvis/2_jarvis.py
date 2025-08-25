@@ -18,7 +18,7 @@ except:
 
 # ----------------- Config / User -----------------
 CONFIG_FILE = "jarvis_config.json"
-DEFAULT_NAME = "spodormon"
+DEFAULT_NAME = "Niggga"
 
 
 def load_name():
