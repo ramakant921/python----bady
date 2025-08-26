@@ -71,8 +71,3 @@ lang = input("Enter language name: ")
 d.update({name: lang})
 
 print(d)
-
-
-# Problem 5
-
-# the value entered 
