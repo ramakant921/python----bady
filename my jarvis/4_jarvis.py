@@ -111,6 +111,32 @@ def system_info():
     )
 
 
+# ----------------- Open Applications -----------------
+def open_app(app_name):
+    """Open common applications on Windows PC by name."""
+    app_name = app_name.lower()
+
+    apps = {
+        "notepad": "notepad.exe",
+        "calculator": "calc.exe",
+        "chrome": r"C:\Program Files\Google\Chrome\Application\chrome.exe",
+        "vs code": r"C:\Users\YourName\AppData\Local\Programs\Microsoft VS Code\Code.exe",
+        "whatsapp": r"C:\Users\YourName\AppData\Local\WhatsApp\WhatsApp.exe",
+        "file explorer": "explorer.exe",
+        "vlc": r"C:\Program Files\VideoLAN\VLC\vlc.exe",
+        "spotify": r"C:\Users\YourName\AppData\Roaming\Spotify\Spotify.exe"
+    }
+
+    if app_name in apps:
+        try:
+            os.startfile(apps[app_name])
+            return f"Opening {app_name}."
+        except Exception as e:
+            return f"Error opening {app_name}: {e}"
+    else:
+        return f"App '{app_name}' not found in list."
+
+
 # ----------------- Greeting -----------------
 def opening_line(name: str) -> str:
     hour = datetime.now().hour
@@ -133,6 +159,7 @@ HELP_TEXT = """Commands:
   calc <expr>        - calculate
   search <query>     - web search
   open <site>        - open website
+  open app <name>    - open application
   wiki <topic>       - Wikipedia summary
   ask <question>     - quick web-based answer
   jarvis             - call Jarvis
@@ -184,11 +211,16 @@ def handle(cmd_raw: str, user_name: str) -> str:
         web_search(q)
         return f"Searching: {q}"
 
+    m = re.match(r"^open\s+app\s+(.+)$", cmd, re.IGNORECASE)
+    if m:
+        app = m.group(1)
+        return open_app(app)
+
     m = re.match(r"^open\s+(.+)$", cmd, re.IGNORECASE)
     if m:
         site = m.group(1)
         open_site(site)
-        return f"Opening: {site}"
+        return f"Opening site: {site}"
 
     m = re.match(r"^wiki\s+(.+)$", cmd, re.IGNORECASE)
     if m:
