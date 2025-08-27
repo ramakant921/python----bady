@@ -45,7 +45,7 @@ engine.setProperty("rate", 180)
 engine.setProperty("volume", 1.0)
 voices = engine.getProperty("voices")
 if voices:
-    engine.setProperty("voice", voices[0].id)
+    engine.setProperty("voice", voices[0].id)          
 
 
 def speak(text: str):
