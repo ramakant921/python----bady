@@ -1,3 +1,4 @@
+import speech_recognition as sr
 from termcolor import colored
 
 print(colored("Hello, Spodormon!", "red"))      # red text

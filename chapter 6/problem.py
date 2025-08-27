@@ -38,20 +38,78 @@
     
     # Problem 3
     
-c1= "make a lots of money"
-c2= "buy now"
-c3= "subscribe now"
-c4= "click this"   
-c5= "and all set"
+# c1= "make a lots of money"
+# c2= "buy now"
+# c3= "subscribe now"
+# c4= "click this"   
+# c5= "and all set"
         
-comments = input("Enter comments: ")
+# comments = input("Enter comments: ")
 
-if((c1 in comments) or (c2 in comments) or (c3 in comments) or (c4 in comments)):
+# if((c1 in comments) or (c2 in comments) or (c3 in comments) or (c4 in comments)):
     
-    print("It's a spam comment")
+#     print("It's a spam comment")
     
-elif(c5 in comments):
-    print("It's the best word!") 
+# elif(c5 in comments):
+#     print("It's the best word!") 
+    
+# else:
+#     print("It's a true comment")
+
+
+
+# Problem 4
+
+# name = input("Enter name: ")
+
+# if(len(name)<10):
+#     print("Your username contain less than 10 character")
+    
+# elif(len(name)>10):
+#     print("Your username contain greater than 10 character")
+
+
+
+
+#  Problem 5
+
+# name = ["Harrison","Vidya","Romit","Shashwat","Ubon"]
+
+# l = input("Enter name: ")
+
+# if(l in name):
+#     print("Entered name is presented in the list")
+    
+# else:
+#     print("Entered name is not presented in list")    
+
+
+
+# Problem 6
+
+# marks = int(input("Enter your Marks: "))
+
+# if(90<= marks<=100):
+#     print('Excellent')
+# elif(80<= marks<90):
+#     print('A grade')
+# elif(70<= marks<80):
+#     print('B Grade')
+# elif(60<= marks<70):
+#     print('C Grade')
+# elif(50<= marks<60):
+#     print('D Grade')
+# elif(marks<50):
+#     print('F Grade you have failed nigga!')
+
+
+
+# Problem 7
+
+post = input("Enter the post: ")
+
+if("Harry".lower() in post.lower()):
+    print("This post is talking about Harry")
     
 else:
-    print("It's a true comment")
+    print("This post is not talking about Harry")
