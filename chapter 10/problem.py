@@ -106,24 +106,24 @@
 
 # Problem 6
 
-from random import randint
+# from random import randint
 
-class Train:
+# class Train:
     
-    def __init__(slf,trainNo):
-        slf.trainNo = trainNo
+#     def __init__(slf,trainNo):
+#         slf.trainNo = trainNo
     
-    def book(self,  fro, to):
-        print(f"Ticket is booked in train no: {self.trainNo} from {fro} to {to}")
+#     def book(self,  fro, to):
+#         print(f"Ticket is booked in train no: {self.trainNo} from {fro} to {to}")
     
-    def getStatus(self, ):
-        print(f"Ticket no: {self.trainNo} is running on time")
+#     def getStatus(self, ):
+#         print(f"Ticket no: {self.trainNo} is running on time")
     
-    def getFare(self, fro, to):
-        print(f"Ticket fair in train no: {self.trainNo} from {fro} to {to} is {randint(222, 5555)}")
+#     def getFare(self, fro, to):
+#         print(f"Ticket fair in train no: {self.trainNo} from {fro} to {to} is {randint(222, 5555)}")
         
         
-t = Train(5646546)
-t.book("Jupiter","Neptune")
-t.getStatus()
-t.getFare("Jupiter","Neptune")
+# t = Train(5646546)
+# t.book("Jupiter","Neptune")
+# t.getStatus()
+# t.getFare("Jupiter","Neptune")
