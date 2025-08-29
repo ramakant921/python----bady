@@ -120,4 +120,41 @@
 
 # Problem 8
 
-with open("this.txt")
+# with open("this.txt")as f:
+#     content = f.read()
+    
+# with open("this_copy.txt","w") as f:
+#     f.write(content)
+
+
+
+# Problem 9
+
+# with open("this.txt")as f:
+#     content1 = f.read()
+    
+# with open("this_copy.txt") as f:
+#     content2 = f.read()
+    
+# if(content1 == content2):
+#     print("Yes these files are identical")
+    
+# else:
+#     print("No these files are not identical")
+
+
+
+# Problem 10
+
+# with open("this.txt","w") as f:
+#     f.write("")
+
+
+
+# Problem 11
+
+# with open("old.txt") as f:
+#     content = f.read()
+    
+# with open("renamed_ny_python.txt","w") as f:
+#     f.write(content)
