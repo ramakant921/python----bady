@@ -17,7 +17,7 @@ except:
 
 
 # ----------------- Config / User -----------------
-CONFIG_FILE = "jarvis_config.json"
+CONFIG_FILE = "Somwar_config.json"
 DEFAULT_NAME = "Niggga"
 
 
@@ -41,7 +41,7 @@ USER_NAME = load_name()
 
 # ----------------- Voice Engine -----------------
 engine = pyttsx3.init()
-engine.setProperty("rate", 180)
+engine.setProperty("rate", 160)
 engine.setProperty("volume", 1.0)
 voices = engine.getProperty("voices")
 if voices:
@@ -186,7 +186,7 @@ def handle(cmd_raw: str, user_name: str) -> str:
             return f"Nice to meet you, {new_name}. I will remember that."
         return "Please provide a name."
 
-    if lcmd == "jarvis" or lcmd.startswith("hey jarvis"):
+    if lcmd == "Jarvis" or lcmd.startswith("hey Jarvis"):
         return f"At your service, {user_name}."
 
     if lcmd == "time":
