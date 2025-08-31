@@ -5,7 +5,7 @@ from openai import OpenAI
 client = OpenAI(
   api_key="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"
 )
-
+# helo helo
 
 command = '''
 [20:59, 26/8/2025] Saurabh 2: Bas missing you
