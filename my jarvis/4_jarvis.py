@@ -41,7 +41,7 @@ USER_NAME = load_name()
 
 # ----------------- Voice Engine -----------------
 engine = pyttsx3.init()
-engine.setProperty("rate", 160)
+engine.setProperty("rate", 170)
 engine.setProperty("volume", 1.0)
 voices = engine.getProperty("voices")
 if voices:
