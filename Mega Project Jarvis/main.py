@@ -1,20 +1,91 @@
 import speech_recognition as sr
 import webbrowser
 import pyttsx3
+import musicLibrary
+import requests
+from gtts import gTTS
+from openai import OpenAI
+import pygame
+import os
 
 recognizer = sr.Recognizer()
 engine = pyttsx3.init()
+newsapi = "0c50feaaf730430ea90d750160c36c40"
 
-def speak(text):
+
+def speak_old(text):
     engine.say(text)
     engine.runAndWait()
     
+def speak(text):
+    tts = gTTS(text)
+    tts.save("temp.mp3")
+    
+    # Initialize Pygame mixer
+    pygame.mixer.init()
+
+    # Load the MP3 file
+    pygame.mixer.music.load('temp.mp3')
+
+    # Play the MP3 file
+    pygame.mixer.music.play()
+
+    # Keep the program running until the music stops playing
+    while pygame.mixer.music.get_busy():
+        pygame.time.Clock().tick(10)
+    
+    pygame.mixer.music.unload()
+    os.remove("temp.mp3") 
+    
+def aiProcess(command):
+    client = OpenAI(api_key="AIzaSyA0akqs0z7bwK4-qjp4NJEhaI_FXkK8Q6o",
+    )
+    
+    completion = client.chat.completions.create(
+    model="gpt-3.5-turbo",
+    messages=[
+        {"role": "system", "content": "You are a virtual assistant named jarvis skilled in general tasks like Alexa and Google Cloud. Give short responses please"},
+        {"role": "user", "content": command}
+    ]
+    )
+    
+    return completion.choices[0].message.content
+    
 def processCommand(c):
-    print(c)
-    pass
+    if c.lower() =="open google" in c.lower():
+        webbrowser.open("https://google.com")
+    elif c.lower() =="open facebook" in c.lower():
+        webbrowser.open("https://facebook.com")
+    elif c.lower() =="open youtube" in c.lower():
+        webbrowser.open("https://youtube.com")
+    elif c.lower() =="open linkedin" in c.lower():
+        webbrowser.open("https://linkedin.com")
+    elif c.lower().startwith("play"):
+        song = c.lower().split(" ")[1]
+        link = musicLibrary.music[song]
+        webbrowser.open(link)
+        
+    elif "news" in c.lower():
+        r = requests.get("0c50feaaf730430ea90d750160c36c40")
+        if r.status_code == 200:
+        #   Parse the JSON response
+            data = r.json()
+            
+            # Extract the articles
+            articles = data.get('articles',[])
+            
+            # Print the headlines
+            for article in articles:
+                speak_old(article['title'])  
+        
+    else:
+        # let openAI handle request
+        output = aiProcess(c)
+        speak_old(output)
+
 
 if __name__ == "__main__":
-    speak("Initialiazing Jarvis.........")
+    speak_old("Initialiazing Jarvis.........")
     
     while True:
         # Listen wake word from "Jarvis"
@@ -31,7 +102,7 @@ if __name__ == "__main__":
                 audio = r.listen(source, timeout = 2, phrase_time_limit = 1)
             word = r.recognize_google(audio)
             if(word.lower() == 'jarvis'):
-                speak("Ya")
+                speak_old("Ya")
                 with sr.Microphone() as source:
                     print("Jarvis active....")
                     audio = r.listen(source)
