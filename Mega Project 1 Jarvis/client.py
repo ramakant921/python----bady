@@ -1,17 +1,17 @@
-from openai import OpenAI
+# from openai import OpenAI
  
-# pip install openai 
-# if you saved the key under a different environment variable name, you can do something like:
-client = OpenAI(
-  api_key="AIzaSyA0akqs0z7bwK4-qjp4NJEhaI_FXkK8Q6o",
-)
+# # pip install openai 
+# # if you saved the key under a different environment variable name, you can do something like:
+# client = OpenAI(
+#   api_key="AIzaSyA0akqs0z7bwK4-qjp4NJEhaI_FXkK8Q6o",
+# )
 
-completion = client.chat.completions.create(
-  model="gpt-3.5-turbo",
-  messages=[
-    {"role": "system", "content": "You are a virtual assistant named jarvis skilled in general tasks like Alexa and Google Cloud"},
-    {"role": "user", "content": "what is coding"}
-  ]
-)
+# completion = client.chat.completions.create(
+#   model="gpt-3.5-turbo",
+#   messages=[
+#     {"role": "system", "content": "You are a virtual assistant named jarvis skilled in general tasks like Alexa and Google Cloud"},
+#     {"role": "user", "content": "what is coding"}
+#   ]
+# )
 
-print(completion.choices[0].message.content)
+# print(completion.choices[0].message.content)

@@ -1,8 +1,8 @@
-import pyautogui
+# import pyautogui
 
-while True:
-    a = pyautogui.position()
-    print(a)
+# while True:
+#     a = pyautogui.position()
+#     print(a)
     
     # 1290,1050
     # 448, 228
