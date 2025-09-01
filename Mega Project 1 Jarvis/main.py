@@ -10,7 +10,7 @@ import os
 
 recognizer = sr.Recognizer()
 engine = pyttsx3.init()
-newsapi = "0c50feaaf730430ea90d750160c36c40"
+newsapi = ""
 
 
 def speak_old(text):
@@ -38,7 +38,7 @@ def speak(text):
     os.remove("temp.mp3") 
     
 def aiProcess(command):
-    client = OpenAI(api_key="AIzaSyA0akqs0z7bwK4-qjp4NJEhaI_FXkK8Q6o",
+    client = OpenAI(api_key="",
     )
     
     completion = client.chat.completions.create(
@@ -66,7 +66,7 @@ def processCommand(c):
         webbrowser.open(link)
         
     elif "news" in c.lower():
-        r = requests.get("0c50feaaf730430ea90d750160c36c40")
+        r = requests.get("")
         if r.status_code == 200:
         #   Parse the JSON response
             data = r.json()
