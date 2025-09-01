@@ -18,7 +18,7 @@ except:
 
 # ----------------- Config / User -----------------
 CONFIG_FILE = "Somwar_config.json"
-DEFAULT_NAME = "Niggga"
+DEFAULT_NAME = "Ramakant"
 
 
 def load_name():
@@ -41,7 +41,7 @@ USER_NAME = load_name()
 
 # ----------------- Voice Engine -----------------
 engine = pyttsx3.init()
-engine.setProperty("rate", 170)
+engine.setProperty("rate", 160)
 engine.setProperty("volume", 1.0)
 voices = engine.getProperty("voices")
 if voices:
@@ -141,13 +141,13 @@ def open_app(app_name):
 def opening_line(name: str) -> str:
     hour = datetime.now().hour
     if 5 <= hour < 12:
-        return f"Good morning, {name}. Jarvis online and ready."
+        return f"Initializing Jarvis , Good Morning {name} , Jarvis online and ready for you."
     elif 12 <= hour < 17:
-        return f"Good afternoon, {name}. How may I assist you?"
+        return f"Initializing Jarvis , Good afternoon {name} How may I assist you?"
     elif 17 <= hour < 22:
-        return f"Good evening, {name}. I'm at your service."
+        return f"Initializing Jarvis , Good evening {name} I'm at your service."
     else:
-        return f"Hello, {name}. It's late, but Jarvis is awake for you."
+        return f"Initializing Jarvis , Hello {name} It's late, but Jarvis is awake for you."
 
 
 # ----------------- Command Handler -----------------

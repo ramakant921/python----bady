@@ -1,0 +1,344 @@
+#!/usr/bin/env python3
+"""
+Jarvis: simple voice+text assistant
+
+Features:
+- Speak responses (offline TTS via pyttsx3)
+- Understand voice (SpeechRecognition + Google Web Speech)
+- Also supports typed commands
+- Open apps/websites (basic examples included)
+- Web search & Wikipedia summaries
+- Time/Date, small talk, jokes
+"""
+
+import os, sys, platform, subprocess, webbrowser, re, random
+from datetime import datetime
+
+# 3rd-party libraries
+try:
+    import speech_recognition as sr
+except Exception:
+    sr = None
+try:
+    import pyttsx3
+except Exception:
+    pyttsx3 = None
+try:
+    import wikipedia
+    wikipedia.set_lang("en")
+except Exception:
+    wikipedia = None
+
+
+# ----------------------------- TTS (Speak) -----------------------------
+class Speaker:
+    def __init__(self):
+        self.ok = False
+        self.engine = None
+        if pyttsx3:
+            try:
+                self.engine = pyttsx3.init()
+                # Tweak voice/rate if you like:
+                # self.engine.setProperty('rate', 180)
+                self.ok = True
+            except Exception:
+                self.ok = False
+
+    def say(self, text: str, also_print: bool = True):
+        if also_print:
+            print(f"Jarvis: {text}")
+        if self.ok:
+            try:
+                self.engine.say(text)
+                self.engine.runAndWait()
+            except Exception:
+                pass
+
+
+# ----------------------------- STT (Listen) -----------------------------
+class Listener:
+    def __init__(self):
+        self.ok = sr is not None
+        if self.ok:
+            self.recognizer = sr.Recognizer()
+
+    def hear(self, timeout=5, phrase_time_limit=8) -> str | None:
+        """Listen from the default microphone and return recognized text."""
+        if not self.ok:
+            return None
+        try:
+            with sr.Microphone() as source:
+                # Adjust for background noise quickly
+                self.recognizer.adjust_for_ambient_noise(source, duration=0.5)
+                audio = self.recognizer.listen(source, timeout=timeout, phrase_time_limit=phrase_time_limit)
+            try:
+                # Uses Google Web Speech API (free, needs internet)
+                return self.recognizer.recognize_google(audio, language="en-IN")
+            except sr.UnknownValueError:
+                return None
+            except sr.RequestError:
+                # network/API issue
+                return None
+        except Exception:
+            return None
+
+
+# ----------------------------- Utilities -----------------------------
+def open_url(url: str):
+    try:
+        webbrowser.open(url)
+        return True
+    except Exception:
+        return False
+
+
+def tell_time():
+    now = datetime.now()
+    return now.strftime("It's %I:%M %p.")
+
+
+def tell_date():
+    today = datetime.now()
+    return today.strftime("Today is %A, %B %d, %Y.")
+
+
+def one_liner_joke():
+    jokes = [
+        "Why do programmers prefer dark mode? Because light attracts bugs.",
+        "I told my computer I needed a break, and it said 'You seem stressed, shall I close your tabs?'",
+        "There are 10 kinds of people in the world: those who understand binary and those who don't.",
+    ]
+    return random.choice(jokes)
+
+
+def normalize(text: str) -> str:
+    return re.sub(r"\s+", " ", text.strip().lower())
+
+
+# ----------------------------- App / Action Launchers -----------------------------
+def open_app(app_name: str, speak: Speaker) -> bool:
+    """
+    Minimal examples for Windows/macOS/Linux. Adjust paths as needed.
+    """
+    system = platform.system().lower()
+    name = app_name.lower()
+
+    try:
+        if "chrome" in name:
+            if system == "windows":
+                # Common Windows paths, adjust if needed:
+                candidates = [
+                    r"C:\Program Files\Google\Chrome\Application\chrome.exe",
+                    r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
+                ]
+                for c in candidates:
+                    if os.path.exists(c):
+                        os.startfile(c)  # type: ignore[attr-defined]
+                        return True
+                # Fall back to webbrowser
+                return open_url("https://google.com")
+            elif system == "darwin":  # macOS
+                subprocess.Popen(["open", "-a", "Google Chrome"])
+                return True
+            else:  # linux
+                subprocess.Popen(["google-chrome"])  # or "chromium"
+                return True
+
+        if "vscode" in name or "visual studio code" in name or "code" == name:
+            if system == "windows":
+                candidates = [
+                    r"C:\Users\%USERNAME%\AppData\Local\Programs\Microsoft VS Code\Code.exe",
+                    r"C:\Program Files\Microsoft VS Code\Code.exe",
+                ]
+                for c in candidates:
+                    c = os.path.expandvars(c)
+                    if os.path.exists(c):
+                        os.startfile(c)  # type: ignore[attr-defined]
+                        return True
+                subprocess.Popen(["code"])
+                return True
+            elif system == "darwin":
+                subprocess.Popen(["open", "-a", "Visual Studio Code"])
+                return True
+            else:
+                subprocess.Popen(["code"])
+                return True
+
+        if "whatsapp" in name:
+            # Try desktop app first; otherwise open web version
+            if system == "windows":
+                candidates = [
+                    r"C:\Users\%USERNAME%\AppData\Local\WhatsApp\WhatsApp.exe",
+                    r"C:\Program Files\WindowsApps\5319275A.WhatsAppDesktop_*\WhatsApp.exe",
+                ]
+                for c in candidates:
+                    c = os.path.expandvars(c)
+                    # glob-like fallback
+                    if "*" in c:
+                        base = c.split("*")[0]
+                        parent = os.path.dirname(base)
+                        if os.path.isdir(parent):
+                            for sub in os.listdir(parent):
+                                path = os.path.join(parent, sub, "WhatsApp.exe")
+                                if os.path.exists(path):
+                                    os.startfile(path)  # type: ignore[attr-defined]
+                                    return True
+                    elif os.path.exists(c):
+                        os.startfile(c)  # type: ignore[attr-defined]
+                        return True
+            elif system == "darwin":
+                try:
+                    subprocess.Popen(["open", "-a", "WhatsApp"])
+                    return True
+                except Exception:
+                    pass
+            # Fallback:
+            return open_url("https://web.whatsapp.com")
+
+        if "file explorer" in name or "files" == name:
+            if system == "windows":
+                os.startfile(os.path.expanduser("~"))  # type: ignore[attr-defined]
+                return True
+            elif system == "darwin":
+                subprocess.Popen(["open", os.path.expanduser("~")])
+                return True
+            else:
+                subprocess.Popen(["xdg-open", os.path.expanduser("~")])
+                return True
+
+    except Exception as e:
+        speak.say(f"Couldn't open {app_name}: {e}")
+        return False
+
+    # Not recognized
+    return False
+
+
+def web_search(query: str) -> bool:
+    # Default to a Google search
+    return open_url(f"https://www.google.com/search?q={query.replace(' ', '+')}")
+
+
+def youtube_search(query: str) -> bool:
+    return open_url(f"https://www.youtube.com/results?search_query={query.replace(' ', '+')}")
+
+
+# ----------------------------- Command Handler -----------------------------
+def handle_command(raw: str, speak: Speaker):
+    if not raw:
+        speak.say("I didn't catch that. Please repeat or type your command.")
+        return
+
+    text = normalize(raw)
+
+    # Exit commands
+    if text in {"quit", "exit", "stop", "goodbye", "bye"}:
+        speak.say("Goodbye!")
+        raise SystemExit
+
+    # Greetings
+    if re.search(r"\b(hello|hi|hey)\b", text):
+        speak.say("Hello! How can I help?")
+        return
+
+    # Time/Date
+    if re.search(r"\btime\b", text):
+        speak.say(tell_time())
+        return
+    if re.search(r"\bdate\b", text):
+        speak.say(tell_date())
+        return
+
+    # Jokes
+    if "joke" in text:
+        speak.say(one_liner_joke())
+        return
+
+    # Open common apps
+    if text.startswith("open "):
+        app = text.replace("open ", "", 1).strip()
+        if open_app(app, speak):
+            speak.say(f"Opening {app}.")
+        else:
+            # Try as website
+            if "." in app or " " not in app:
+                if not app.startswith(("http://", "https://")) and "." in app:
+                    success = open_url(f"https://{app}")
+                else:
+                    success = open_url(app)
+                if success:
+                    speak.say(f"Opening {app}.")
+                    return
+            speak.say(f"I couldn't open {app}.")
+        return
+
+    # Search commands
+    m = re.match(r"(search for|google|search)\s+(.*)", text)
+    if m:
+        query = m.group(2)
+        web_search(query)
+        speak.say(f"Searching for {query}.")
+        return
+
+    # YouTube
+    m = re.match(r"(play|youtube|search youtube for)\s+(.*)", text)
+    if m:
+        query = m.group(2)
+        youtube_search(query)
+        speak.say(f"Looking up {query} on YouTube.")
+        return
+
+    # Wikipedia quick summary
+    if wikipedia and (text.startswith("who is ") or text.startswith("what is ") or text.startswith("wikipedia ")):
+        q = text
+        q = re.sub(r"^(who is|what is|wikipedia)\s+", "", q).strip()
+        if q:
+            try:
+                summary = wikipedia.summary(q, sentences=2, auto_suggest=True, redirect=True)
+                speak.say(summary)
+                return
+            except Exception:
+                speak.say("I couldn't get a summary right now.")
+                return
+
+    # Fallback: try web search
+    speak.say("I'm not sure. I'll search the web.")
+    web_search(text)
+
+
+# ----------------------------- Main Loop -----------------------------
+def main():
+    speaker = Speaker()
+    listener = Listener()
+
+    speaker.say("Jarvis online. Type a command, or press Enter to speak. Say 'exit' to quit.", also_print=True)
+
+    while True:
+        try:
+            user = input("\nYou (type, or just press Enter to talk): ").strip()
+        except (EOFError, KeyboardInterrupt):
+            speaker.say("Exiting. See you later!")
+            break
+
+        if user:
+            handle_command(user, speaker)
+            continue
+
+        # If user pressed Enter, try to listen
+        if not listener.ok:
+            speaker.say("Microphone not available. Please type your command.")
+            continue
+
+        speaker.say("Listening...", also_print=False)
+        heard = listener.hear(timeout=5, phrase_time_limit=8)
+        if heard:
+            print(f"You (voice): {heard}")
+            handle_command(heard, speaker)
+        else:
+            speaker.say("Sorry, I didn't hear anything.")
+
+if __name__ == "__main__":
+    try:
+        main()
+    except SystemExit:
+        pass
