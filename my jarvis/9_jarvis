@@ -1,0 +1,266 @@
+#!/usr/bin/env python3
+"""
+Jarvis Assistant (Typing + Voice + OpenAI)
+- Responds to typed or spoken commands
+- Speaks every response (offline TTS with pyttsx3)
+- Listens via microphone (SpeechRecognition + Google Web Speech)
+- Wikipedia summaries
+- Opens apps & websites
+- Can tell time, date, jokes
+- Falls back to OpenAI for general queries
+"""
+
+import os, sys, platform, subprocess, webbrowser, re, random
+from datetime import datetime
+
+# ---------- Third-party libraries ----------
+try:
+    import speech_recognition as sr
+except:
+    sr = None
+
+try:
+    import pyttsx3
+except:
+    pyttsx3 = None
+
+try:
+    import wikipedia
+    wikipedia.set_lang("en")
+except:
+    wikipedia = None
+
+try:
+    from openai import OpenAI
+    client = OpenAI(api_key=os.getenv("AIzaSyBSBEoMXohnEgDO-SUMis1BmFV30fd3Jf0"))  # Set your API key in environment
+except:
+    client = None
+
+
+# ---------- Speak ----------
+class Speaker:
+    def __init__(self):
+        self.ok = False
+        if pyttsx3:
+            try:
+                self.engine = pyttsx3.init()
+                self.engine.setProperty("rate", 180)
+                self.ok = True
+            except:
+                pass
+
+    def say(self, text, also_print=True):
+        if also_print:
+            print(f"Jarvis: {text}")
+        if self.ok:
+            try:
+                self.engine.say(text)
+                self.engine.runAndWait()
+            except:
+                pass
+
+
+# ---------- Listen ----------
+class Listener:
+    def __init__(self):
+        self.ok = sr is not None
+        if self.ok:
+            self.recognizer = sr.Recognizer()
+
+    def hear(self, timeout=5, phrase_time_limit=8):
+        if not self.ok:
+            return None
+        try:
+            with sr.Microphone() as source:
+                self.recognizer.adjust_for_ambient_noise(source, duration=0.5)
+                audio = self.recognizer.listen(source, timeout=timeout, phrase_time_limit=phrase_time_limit)
+            return self.recognizer.recognize_google(audio, language="en-IN")
+        except:
+            return None
+
+
+# ---------- Helpers ----------
+def normalize(text: str) -> str:
+    return re.sub(r"\s+", " ", text.strip().lower())
+
+
+def tell_time():
+    return datetime.now().strftime("It's %I:%M %p.")
+
+
+def tell_date():
+    return datetime.now().strftime("Today is %A, %B %d, %Y.")
+
+
+def joke():
+    jokes = [
+        "Why do programmers prefer dark mode? Because light attracts bugs.",
+        "There are only 10 types of people: those who understand binary and those who don't.",
+        "I told my computer I needed a break, and it said: 'No problem, I’ll go to sleep.'",
+    ]
+    return random.choice(jokes)
+
+
+def open_url(url: str):
+    try:
+        webbrowser.open(url)
+        return True
+    except:
+        return False
+
+
+def open_app(app: str, speak: Speaker):
+    system = platform.system().lower()
+    app = app.lower()
+
+    try:
+        if "chrome" in app:
+            if system == "windows":
+                os.startfile(r"C:\Program Files\Google\Chrome\Application\chrome.exe")
+            elif system == "darwin":
+                subprocess.Popen(["open", "-a", "Google Chrome"])
+            else:
+                subprocess.Popen(["google-chrome"])
+            speak.say("Opening Chrome.")
+            return True
+
+        if "vscode" in app or "code" in app:
+            if system == "windows":
+                os.startfile(r"C:\Users\%USERNAME%\AppData\Local\Programs\Microsoft VS Code\Code.exe")
+            elif system == "darwin":
+                subprocess.Popen(["open", "-a", "Visual Studio Code"])
+            else:
+                subprocess.Popen(["code"])
+            speak.say("Opening Visual Studio Code.")
+            return True
+
+        if "whatsapp" in app:
+            if system == "windows":
+                os.startfile(r"C:\Users\%USERNAME%\AppData\Local\WhatsApp\WhatsApp.exe")
+            elif system == "darwin":
+                subprocess.Popen(["open", "-a", "WhatsApp"])
+            else:
+                subprocess.Popen(["xdg-open", "https://web.whatsapp.com"])
+            speak.say("Opening WhatsApp.")
+            return True
+
+        if "file explorer" in app or "files" in app:
+            if system == "windows":
+                os.startfile(os.path.expanduser("~"))
+            elif system == "darwin":
+                subprocess.Popen(["open", os.path.expanduser("~")])
+            else:
+                subprocess.Popen(["xdg-open", os.path.expanduser("~")])
+            speak.say("Opening File Explorer.")
+            return True
+
+    except:
+        speak.say(f"Couldn't open {app}.")
+        return False
+
+    return False
+
+
+# ---------- OpenAI Integration ----------
+def ask_openai(prompt: str) -> str:
+    if not client:
+        return "OpenAI not available. Please install the library and set your API key."
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",  # fast & smart, change if needed
+            messages=[{"role": "user", "content": prompt}],
+        )
+        return response.choices[0].message.content.strip()
+    except Exception as e:
+        return f"Error with OpenAI: {e}"
+
+
+# ---------- Command Handler ----------
+def handle_command(raw: str, speak: Speaker):
+    if not raw:
+        speak.say("I didn't catch that.")
+        return
+
+    text = normalize(raw)
+
+    if text in {"exit", "quit", "bye"}:
+        speak.say("Goodbye!")
+        sys.exit(0)
+
+    if "hello" in text or "hi" in text:
+        speak.say("Hello! How can I help?")
+        return
+
+    if "time" in text:
+        speak.say(tell_time())
+        return
+
+    if "date" in text:
+        speak.say(tell_date())
+        return
+
+    if "joke" in text:
+        speak.say(joke())
+        return
+
+    if text.startswith("open "):
+        app = text.replace("open ", "")
+        if not open_app(app, speak):
+            open_url(f"https://{app}")
+            speak.say(f"Opening {app} in browser.")
+        return
+
+    if text.startswith("search ") or text.startswith("google "):
+        q = text.split(" ", 1)[1]
+        open_url(f"https://www.google.com/search?q={q}")
+        speak.say(f"Searching Google for {q}.")
+        return
+
+    if text.startswith("youtube "):
+        q = text.split(" ", 1)[1]
+        open_url(f"https://www.youtube.com/results?search_query={q}")
+        speak.say(f"Searching YouTube for {q}.")
+        return
+
+    if wikipedia and (text.startswith("who is") or text.startswith("what is") or text.startswith("wikipedia")):
+        q = re.sub(r"^(who is|what is|wikipedia)\s+", "", text)
+        try:
+            summary = wikipedia.summary(q, sentences=2)
+            speak.say(summary)
+        except:
+            speak.say("I couldn't find anything on Wikipedia.")
+        return
+
+    # If nothing else matches → Ask OpenAI
+    ai_reply = ask_openai(raw)
+    speak.say(ai_reply)
+
+
+# ---------- Main Loop ----------
+def main():
+    speaker = Speaker()
+    listener = Listener()
+
+    speaker.say("Jarvis online. Type a command, or press Enter to speak. Say exit to quit.")
+
+    while True:
+        user = input("\nYou (type, or press Enter to speak): ").strip()
+        if user:
+            handle_command(user, speaker)
+            continue
+
+        if not listener.ok:
+            speaker.say("Microphone not available. Please type your command.")
+            continue
+
+        speaker.say("Listening...", also_print=False)
+        heard = listener.hear()
+        if heard:
+            print(f"You (voice): {heard}")
+            handle_command(heard, speaker)
+        else:
+            speaker.say("Sorry, I didn't hear anything.")
+
+
+if __name__ == "__main__":
+    main()
