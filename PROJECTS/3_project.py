@@ -1,22 +1,34 @@
 import random
 
+def play():
+    print("Rock,Paper,Scissor  GAME!")
+    print("Type (rock,paper,scissor) or (quit/stop)")
+    
+    choices = ("rock","paper","scissor")
 
-
-
-# l = ["Rock","Paper","Scissor"]
-# r = "Rock"
-# p="Paper"
-# s = "Scissor"
-
-# user = [r,p,s]
-
-l = ("rock","paper","scissor")
-
-user = input("Enter your option: ").lower
-computer = random.Random()
-
-if(user == computer):
-    print("YOU LOOSE!",user and computer)
-
-else:
-    print("YOU WON!",user and computer) 
+    while True:
+        user = input("Enter your option: ").lower()
+        if(user == "quit"):
+            print("Thanks For playing")
+            break
+        if (user not in choices):
+            print("Invalid Choice! Try Again") 
+            continue
+        
+        
+        computer = random.choice(choices)
+        print(f"Computer chose: {computer}")
+        
+        if (user == computer):
+            print("It's a tie!")
+            
+        elif ((user == "rock" and computer == "scissor") or
+              (user == "scissor" and computer == "paper") or
+              (user =="paper" and computer == "rock")):
+            print("YOU WON!")
+            
+        else:
+            print("YOU LOOSE! COMPUTER WINS.") 
+                
+if __name__ == "__main__":               
+    play()
