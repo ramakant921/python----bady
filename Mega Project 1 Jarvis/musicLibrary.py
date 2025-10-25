@@ -1,6 +1,6 @@
 music = {
-    "let_it_happen": "https://www.youtube.com/watch?v=pFptt7Cargc",
-    "less_i_know_better": "https://www.youtube.com/watch?v=sBzrzS1Ag_g",
-    "one_more_hour": "https://www.youtube.com/watch?v=Y0U6u2D8cMU",
-    "sunflower": "https://www.youtube.com/watch?v=ApXoWvfEYVU"
+    "let it happen" : "https://youtu.be/CMjAL3RIDsQ?si=WgM5CF3H5WR5I-IM",
+    "Borderland" : "https://www.youtube.com/watch?v=2g5xkLqIElU",
+    "Far from any road" : "https://www.youtube.com/watch?v=SfGCd_7LHpQ&pp=0gcJCQYKAYcqIYzv",
+    "My way" : "https://www.youtube.com/watch?v=qQzdAsjWGPg&pp=0gcJCQYKAYcqIYzv"
 }

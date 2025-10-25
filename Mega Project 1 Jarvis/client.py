@@ -1,9 +1,9 @@
 from openai import OpenAI
- 
-# pip install openai 
-# if you saved the key under a different environment variable name, you can do something like:
+
+client = OpenAI()
+
 client = OpenAI(
-  api_key="AIzaSyBahAJw0LZ9lD7IVjVcqvf6z8QeH9PGJ34",
+    api_key="AIzaSyBahAJw0LZ9lD7IVjVcqvf6z8QeH9PGJ34"
 )
 
 completion = client.chat.completions.create(
